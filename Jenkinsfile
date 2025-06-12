@@ -1,5 +1,10 @@
 pipeline {
-    agent { label 'docker-host' }
+    agent {
+        docker {
+            image 'yourdockerhubuser/jenkins-agent-with-ansible'
+            args '-u root'
+        }
+    }
 
     environment {
         IMAGE_NAME = "shay-flask-app"
@@ -17,51 +22,28 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                }
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
             }
         }
 
         stage('Run Container') {
             steps {
-                script {
-                    sh "docker run -d --rm --name ${CONTAINER_NAME} -p 5001:5001 ${IMAGE_NAME}:${IMAGE_TAG}"
-                }
-            }
-        }
-
-        stage('Install Ansible') {
-            agent {
-                docker {
-                    image 'jenkins/inbound-agent'
-                    args '-u root'
-                }
-            }
-            steps {
-                sh '''
-                apt-get update
-                apt-get install -y ansible sshpass
-                '''
+                sh "docker run -d --rm --name ${CONTAINER_NAME} -p 5001:5001 ${IMAGE_NAME}:${IMAGE_TAG}"
             }
         }
 
         stage('Test') {
             steps {
-                script {
-                    echo "Waiting for app to start..."
-                    sleep 3
-                    echo "Running test on http://localhost:5001 ..."
-                    sh 'curl --fail http://localhost:5001 || (echo "❌ Test failed!" && exit 1)'
-                }
+                echo "Waiting for app to start..."
+                sh "sleep 3"
+                echo "Running test on http://localhost:5001 ..."
+                sh 'curl --fail http://localhost:5001 || (echo "❌ Test failed!" && exit 1)'
             }
         }
 
         stage('Cleanup') {
             steps {
-                script {
-                    sh "docker stop ${CONTAINER_NAME} || true"
-                }
+                sh "docker stop ${CONTAINER_NAME} || true"
             }
         }
 
