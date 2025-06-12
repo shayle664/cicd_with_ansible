@@ -31,6 +31,18 @@ pipeline {
             }
         }
 
+        stage('Show Real Workspace') {
+            steps {
+                sh '''
+                echo "Current working dir:"
+                pwd
+                echo "Listing contents:"
+                ls -la
+                '''
+            }
+        }
+
+
         stage('Test') {
             steps {
                 script {
