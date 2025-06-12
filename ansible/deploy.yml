@@ -1,0 +1,16 @@
+- name: Deploy Flask app via Docker
+  hosts: web
+  tasks:
+    - name: Stop existing container
+      docker_container:
+        name: flask-container
+        state: absent
+        force_kill: true
+
+    - name: Run new container
+      docker_container:
+        name: flask-container
+        image: "{{ image_name }}:{{ image_tag }}"
+        state: started
+        ports:
+          - "5001:5001"
