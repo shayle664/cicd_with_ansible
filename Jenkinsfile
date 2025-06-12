@@ -31,17 +31,14 @@ pipeline {
             }
         }
 
-        stage('Show Real Workspace') {
+        stage('Install Ansible') {
             steps {
                 sh '''
-                echo "Current working dir:"
-                pwd
-                echo "Listing contents:"
-                ls -la
+                apt-get update
+                apt-get install -y ansible sshpass
                 '''
             }
         }
-
 
         stage('Test') {
             steps {
