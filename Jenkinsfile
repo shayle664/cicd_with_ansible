@@ -54,6 +54,14 @@ pipeline {
             }
         }
 
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh "docker stop ${CONTAINER_NAME} || true"
+                }
+            }
+        }
+
         stage('Deploy with Ansible') {
             steps {
                 sh '''
