@@ -32,6 +32,12 @@ pipeline {
         }
 
         stage('Install Ansible') {
+            agent {
+                docker {
+                    image 'jenkins/inbound-agent'
+                    args '-u root'
+                }
+            }
             steps {
                 sh '''
                 apt-get update
